@@ -5,9 +5,9 @@ import axios from "axios";
 
 function App() {
   const [iphones, setIphones] = useState([]);
-  const [formValues, setFormValues] = useState({ model: "", price: "", quantity: "" });
+  const [formValues, setFormValues] = useState({ product_name: "", price: "", quantity: "" });
   const [isEditing, setIsEditing] = useState(false);
-  const [editIndex, setEditIndex] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState([]);
 
   useEffect(() =>{
     axios.get('http://localhost:8000/products/fetch-create/', {headers: {
@@ -15,36 +15,60 @@ function App() {
       "Content-Type": "application/json",
     }}).then((response)=>{
       setIphones(response.data)
+      
     })
   }, [])
 
   const handleAdd = () => {
-    if (formValues.model && formValues.price && formValues.quantity) {
+    
+    if (formValues.product_name && formValues.price && formValues.quantity) {
       if (isEditing) {
         // Edit existing iPhone
-        const updatedIphones = [...iphones];
-        updatedIphones[editIndex] = formValues;
-        setIphones(updatedIphones);
+        axios.patch(`http://localhost:8000/products/update-delete/${selectedProduct.id}/`, formValues,{
+      headers: {
+    "Content-Type": "application/json",
+  }}).then((response)=>{
+    window.location.reload()
+  }).catch((error)=>{
+    console.log(error.message)
+  })
         setIsEditing(false);
-        setEditIndex(null);
+        
       } else {
         // Add a new iPhone
-        setIphones([...iphones, { ...formValues, id: Date.now() }]);
+        axios.post('http://localhost:8000/products/fetch-create/', formValues,{
+          headers: {
+        "Content-Type": "application/json",
+      }}).then((response)=>{
+        window.location.reload()
+      }).catch((error)=>{
+        console.log(error.message)
+      })
+        
       }
       // Clear the form
       setFormValues({ model: "", price: "", quantity: "" });
     }
   };
 
-  const handleEdit = (index) => {
+  const handleEdit = (iphone) => {
     setIsEditing(true);
-    setEditIndex(index);
-    setFormValues(iphones[index]);
+    setFormValues(iphone);
+    setSelectedProduct(iphone)
+    
   };
 
   const handleDelete = (id) => {
-    const updatedIphones = iphones.filter((iphone) => iphone.id !== id);
-    setIphones(updatedIphones);
+    axios.delete(`http://localhost:8000/products/update-delete/${id}/`, formValues,{
+      headers: {
+    "Content-Type": "application/json",
+  }}).then((response)=>{
+    window.location.reload()
+  }).catch((error)=>{
+    console.log(error.message)
+  })
+    
+  
   };
 
   return (
@@ -68,7 +92,7 @@ function App() {
                 <td>${iphone.price}</td>
                 <td>{iphone.quantity}</td>
                 <td>
-                  <button onClick={() => handleEdit(index)}>Edit</button>
+                  <button onClick={() => handleEdit(iphone)}>Edit</button>
                   <button onClick={() => handleDelete(iphone.id)}>Delete</button>
                 </td>
               </tr>
@@ -80,8 +104,8 @@ function App() {
           <input
             type="text"
             placeholder="Model"
-            value={formValues.model}
-            onChange={(e) => setFormValues({ ...formValues, model: e.target.value })}
+            value={formValues.product_name}
+            onChange={(e) => setFormValues({ ...formValues, product_name: e.target.value })}
           />
           <input
             type="number"

@@ -1,9 +1,18 @@
 
-
 .App {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   margin-left: 30vw;
+}
+
+.App table{
+  width: 50vw;
+  padding-bottom: 3rem;
+  
+}
+
+.App table tbody {
+  text-align: center;
 }
