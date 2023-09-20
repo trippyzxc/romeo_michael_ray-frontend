@@ -64,7 +64,7 @@ function App() {
           <tbody>
             {iphones.map((iphone, index) => (
               <tr key={iphone.id}>
-                <td>{iphone.model}</td>
+                <td>{iphone.product_name}</td>
                 <td>${iphone.price}</td>
                 <td>{iphone.quantity}</td>
                 <td>
